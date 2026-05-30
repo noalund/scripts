@@ -1,0 +1,31 @@
+#!/bin/bash
+
+IMG="$1"
+CONFIG="$HOME/.config/hypr/hyprpaper.conf"
+
+# Require an argument
+if [[ -z "$IMG" ]]; then
+    echo "Usage: wallpaper /path/to/image"
+    exit 1
+fi
+
+# Convert to absolute path
+IMG="$(realpath "$IMG")"
+
+# Replace /home/$USER/ with ~/
+IMG_CONFIG="${IMG/#$HOME/\~}"
+
+# Update wallpaper paths in config
+sed -i "s|^\(\s*path\s*=\s*\).*|\1$IMG_CONFIG|g" "$CONFIG"
+
+# Restart hyprpaper
+pkill hyprpaper
+sleep 0.2
+nohup hyprpaper >/dev/null 2>&1 &
+
+# Apply pywal colors
+wal -i "$IMG"
+
+# Restart waybar
+pkill waybar
+nohup waybar >/dev/null 2>&1 &
