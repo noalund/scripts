@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Create local snapshots of home directory
+
+set -euo pipefail
+
+BASE="/run/media/${USER}/lacieb"
+SOURCE="$HOME"
+
+if ! mountpoint -q "$BASE"; then
+    echo "Backup drive not mounted: $BASE"
+    exit 1
+fi
+
+DAY=$(date +%d)
+
+if [ "$DAY" = "01" ]; then
+    TYPE="monthly"
+    LIMIT=12
+else
+    TYPE="daily"
+    LIMIT=30
+fi
+
+DEST="$BASE/$TYPE"
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+TARGET="$DEST/$TIMESTAMP"
+LATEST="$DEST/latest"
+
+mkdir -p "$TARGET"
+
+# If a previous backup exists, use it for linking:
+if [ -d "$LATEST" ]; then
+    LINKDEST="--link-dest=$LATEST"
+else
+    LINKDEST=""
+fi
+
+rsync -avAX --numeric-ids --delete \
+    ${LINKDEST:+$LINKDEST} \
+    --exclude='.cache' \
+    --exclude='.local/share/Trash' \
+    --exclude='Downloads' \
+    "$SOURCE/" "$TARGET/"
+
+# Update latest symlink
+ln -sfn "$TARGET" "$LATEST"
+
+# Count snapshots (ignore the 'latest' symlink)
+COUNT=$(find "$DEST" -mindepth 1 -maxdepth 1 -type d | wc -l)
+
+if [ "$COUNT" -gt "$LIMIT" ]; then
+    notify-send "Backup Warning" \
+    "$TYPE backups exceed limit ($COUNT > $LIMIT)"
+fi
