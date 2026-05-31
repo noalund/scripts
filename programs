@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# List explicitly installed pacman packages in a text file
+
+set -euo pipefail
+
+OUTPUT_DIR="$HOME/Documents/archive/003_Program Files"
+
+mkdir -p "$OUTPUT_DIR"
+
+pacman -Qeq > "$OUTPUT_DIR/package-list-$(date +%F).txt"
+
+echo "Package list saved to $OUTPUT_DIR"
