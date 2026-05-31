@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# toggle mullvad vpn connection / lockdown mode:
+
+status=$(mullvad status)
+
+if echo "$status" | grep -q 'Connected'; then
+    mullvad disconnect
+    mullvad lockdown-mode set off
+    notify-send "VPN is disabled" "Local IP Address"
+else
+    mullvad connect
+    mullvad lockdown-mode set on
+    notify-send "VPN is enabled" "Mullvad IP Address"
+fi

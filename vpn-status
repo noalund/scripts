@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# print a simple line for use with waybar module:
+
+STATUS=$(mullvad status)
+
+if echo "$STATUS" | grep -q "Connected"; then
+    LOCATION=$(mullvad status -v | awk -F: '/Visible location/ {print $2}' | awk -F. '{print $1}' | xargs)
+    echo "🔒 $LOCATION"
+else
+    echo "🔓 Disconnected"
+fi
