@@ -1,0 +1,7 @@
+#!/bin/sh
+
+LOCATION=$(<"$HOME/.location")
+
+DATA=$(curl -s "wttr.in/$LOCATION?format=S:%S%0As:%s&T")
+
+notify-send "Sunrise & sunset times:" "$DATA"

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Directory to save recordings
+SAVE_DIR="$HOME/Videos"
+mkdir -p "$SAVE_DIR"
+
+# File name with timestamp
+FILE="$SAVE_DIR/recording_$(date +%Y-%m-%d_%H-%M-%S).mp4"
+
+# Record screen + audio
+echo "Recording... Press Ctrl+C to stop."
+wf-recorder --audio --file="$FILE"
+
+echo "Recording saved to $FILE"
