@@ -1,0 +1,13 @@
+#!/bin/bash
+
+EXTERNAL_MONITOR="DP-1|HDMI-A-1"
+
+pkill hypridle
+
+if hyprctl monitors | grep -q "$EXTERNAL_MONITOR"; then
+    echo "External monitor detected → long idle times"
+    hypridle -c ~/.config/hypr/hypridle-home.conf &
+else
+    echo "No external monitor → normal idle times"
+    hypridle &
+fi
