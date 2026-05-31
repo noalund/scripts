@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# List explicitly installed pacman packages in a text file
+# List explicitly installed pacman packages in a text file w/"current" symlink
 
 set -euo pipefail
 
@@ -8,6 +8,10 @@ OUTPUT_DIR="$HOME/Documents/archive/003_Program Files"
 
 mkdir -p "$OUTPUT_DIR"
 
-pacman -Qeq > "$OUTPUT_DIR/package-list-$(date +%F).txt"
+FILE="$OUTPUT_DIR/package-list-$(date +%F).txt"
 
-echo "Package list saved to $OUTPUT_DIR"
+pacman -Qeq > "$FILE"
+
+ln -sfn "$FILE" "$OUTPUT_DIR/package-list-current.txt"
+
+echo "Package list saved to $FILE"
