@@ -1,0 +1,7 @@
+#!/bin/bash
+if ! pgrep -x "ollama" > /dev/null; then
+    ollama serve > ~/.cache/ollama_server.log 2>&1 &
+    sleep 3
+fi
+
+kitty -e ollama run gemma3

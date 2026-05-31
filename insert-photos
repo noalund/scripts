@@ -1,0 +1,151 @@
+#!/bin/bash
+
+# Insert old numbered photos (out-of-sequence) into "iPhoto" collection and adjust all later photo filenames accordingly
+# Assumes filenames are formatted as "#### - name"
+# Work-in-progress & mostly vibe-coded, so don't blame me for issues
+
+DOWNLOADS="$HOME/Downloads"
+LIBRARY="$HOME/Pictures/iPhoto"
+LOGDIR="$LIBRARY/.logs"
+
+mkdir -p "$LOGDIR"
+LOGFILE="$LOGDIR/insert_$(date +%Y%m%d_%H%M%S).log"
+
+log() {
+    echo "$1" | tee -a "$LOGFILE"
+}
+
+log "=== INSERT OPERATION ==="
+log "Timestamp: $(date)"
+log ""
+
+log "Scanning $DOWNLOADS for valid photo filenames..."
+
+mapfile -t NEWFILES < <(find "$DOWNLOADS" -maxdepth 1 -type f -printf "%f\n" | grep -E '^[0-9]{4} - ')
+
+if [ ${#NEWFILES[@]} -eq 0 ]; then
+    log "No valid files found. Exiting."
+    exit 1
+fi
+
+# Extract indices
+INDICES=()
+for f in "${NEWFILES[@]}"; do
+    if [[ $f =~ ^([0-9]{4})\ -\  ]]; then
+        INDICES+=("${BASH_REMATCH[1]}")
+    else
+        log "ERROR: Invalid format: $f"
+        exit 1
+    fi
+done
+
+SORTED=($(printf "%s\n" "${INDICES[@]}" | sort -n))
+
+START=${SORTED[0]}
+START=$((10#$START))
+COUNT=${#SORTED[@]}
+
+log ""
+log "Detected ${COUNT} valid file(s):"
+for f in "${NEWFILES[@]}"; do
+    log "  $f"
+done
+
+log ""
+log "Insertion details:"
+log "  Start index: $(printf "%04d" $START)"
+log "  Files to insert: $COUNT"
+log "  Target library: $LIBRARY"
+
+# Sequential check
+log ""
+log "Checking sequential numbering..."
+
+EXPECTED=$START
+SEQ_OK=true
+
+for num in "${SORTED[@]}"; do
+    num_val=$((10#$num))
+    if (( num_val != EXPECTED )); then
+        log "WARNING: Expected $(printf "%04d" $EXPECTED), found $(printf "%04d" $num_val)"
+        SEQ_OK=false
+        break
+    fi
+    ((EXPECTED++))
+done
+
+if [ "$SEQ_OK" = false ]; then
+    read -p "Non-sequential numbering detected. Continue anyway? (y/N): " SEQ_CONFIRM
+    [[ "$SEQ_CONFIRM" != "y" ]] && exit 1
+else
+    log "Sequential numbering confirmed."
+fi
+
+# Conflict check
+log ""
+log "Checking for filename conflicts..."
+
+for f in "${NEWFILES[@]}"; do
+    if [ -e "$LIBRARY/$f" ]; then
+        log "ERROR: File exists: $f"
+        exit 1
+    fi
+done
+
+log "No conflicts found."
+
+# DRY RUN
+log ""
+log "========== DRY RUN =========="
+
+mapfile -t EXISTING < <(ls "$LIBRARY" | grep -E '^[0-9]{4} - ' | sort -r)
+
+for file in "${EXISTING[@]}"; do
+    num="${file:0:4}"
+    num_val=$((10#$num))
+
+    if (( num_val >= START )); then
+        new_num=$(printf "%04d" $((num_val + COUNT)))
+        new_name="${new_num}${file:4}"
+
+        log "RENAME: $file -> $new_name"
+    fi
+done
+
+log ""
+log "MOVES:"
+for f in "${NEWFILES[@]}"; do
+    log "MOVE: $f -> $LIBRARY/"
+done
+
+log "============================="
+log ""
+
+read -p "Proceed with these changes? (type 'yes' to confirm): " CONFIRM
+[[ "$CONFIRM" != "yes" ]] && exit 0
+
+# EXECUTION
+log ""
+log "========== EXECUTION =========="
+
+for file in "${EXISTING[@]}"; do
+    num="${file:0:4}"
+    num_val=$((10#$num))
+
+    if (( num_val >= START )); then
+        new_num=$(printf "%04d" $((num_val + COUNT)))
+        new_name="${new_num}${file:4}"
+
+        log "RENAME: $file -> $new_name"
+        mv -n "$LIBRARY/$file" "$LIBRARY/$new_name"
+    fi
+done
+
+for f in "${NEWFILES[@]}"; do
+    log "MOVE: $f -> $LIBRARY/"
+    mv "$DOWNLOADS/$f" "$LIBRARY/"
+done
+
+log ""
+log "Done. Files inserted successfully."
+log "Log saved to: $LOGFILE"
