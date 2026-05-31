@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Resolve citations in .ms document using refer + bibliography file
+# Provide preview or generate PDF with formatted references
+# Assumes single .ms file and single "bibliography" file in current directory
+
+MS_FILE=$(ls *.ms 2>/dev/null | head -n 1)
+if [[ -z "$MS_FILE" ]]; then
+    echo "No .ms file found in the current directory."
+    exit 1
+fi
+
+BIB_FILE="bibliography"
+if [[ ! -f "$BIB_FILE" ]]; then
+    echo "No bibliography file named '$BIB_FILE' found."
+    exit 1
+fi
+
+echo "Found .ms file: $MS_FILE"
+echo "Bibliography file: $BIB_FILE"
+echo ""
+echo "1) Preview"
+echo "2) Generate PDF"
+
+read -p "Enter 1 or 2: " choice
+
+case "$choice" in
+    1)
+        refer -p "$BIB_FILE" "$MS_FILE" | less
+        ;;
+    2)
+        OUT_FILE="${MS_FILE%.ms}.pdf"
+        refer -p "$BIB_FILE" "$MS_FILE" | groff -ms -T pdf > "$OUT_FILE"
+        echo "PDF generated: $OUT_FILE"
+        ;;
+    *)
+        echo "Canceled."
+        ;;
+esac
