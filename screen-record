@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directory to save recordings
-SAVE_DIR="$HOME/Videos"
+SAVE_DIR="$HOME/videos"
 mkdir -p "$SAVE_DIR"
 
 # File name with timestamp

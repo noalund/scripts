@@ -4,8 +4,8 @@
 # Assumes filenames are formatted as "#### - name"
 # Work-in-progress & mostly vibe-coded, so don't blame me for issues
 
-DOWNLOADS="$HOME/Downloads"
-LIBRARY="$HOME/Pictures/iPhoto"
+DOWNLOADS="$HOME/downloads"
+LIBRARY="$HOME/pictures/iPhoto"
 LOGDIR="$LIBRARY/.logs"
 
 mkdir -p "$LOGDIR"

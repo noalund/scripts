@@ -40,7 +40,7 @@ rsync -avAX --numeric-ids --delete \
     ${LINKDEST:+$LINKDEST} \
     --exclude='.cache' \
     --exclude='.local/share/Trash' \
-    --exclude='Downloads' \
+    --exclude='downloads' \
     "$SOURCE/" "$TARGET/"
 
 # Update latest symlink
