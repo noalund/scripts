@@ -4,11 +4,20 @@
 
 set -euo pipefail
 
-BASE="/run/media/${USER}/lacieb"
+if [ $# -ne 1 ]; then
+    echo "Usage: $(basename "$0") [drive]"
+    echo
+    echo "Mounted drives:"
+    ls "/run/media/$USER"
+    exit 1
+fi
+
+BASE="/run/media/${USER}/$1"
 SOURCE="$HOME"
 
 if ! mountpoint -q "$BASE"; then
-    echo "Backup drive not mounted: $BASE"
+    echo "Drive not mounted or does not exist:"
+    echo "  $BASE"
     exit 1
 fi
 
