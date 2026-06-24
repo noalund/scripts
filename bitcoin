@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# cache out 1BTC value in case of temporary curl failures:
+
+CACHE="$HOME/.cache/bitcoin-cache"
+mkdir -p "$HOME/.cache"
+
+OUT=$(curl -s --max-time 3 rate.sx/1BTC)
+
+if [[ -n "$OUT" ]]; then
+    awk '{printf "₿%.2f", $1}' <<< "$OUT" > "$CACHE"
+fi
+
+cat "$CACHE" 2>/dev/null || echo "?"

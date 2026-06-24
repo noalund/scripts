@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# cache out temperature in case of temporary curl failures:
+
+CACHE="$HOME/.cache/weather-cache"
+LOC=$(cat "$HOME/.location" 2>/dev/null)
+mkdir -p "$HOME/.cache"
+
+if [[ -z "$LOC" ]]; then
+    echo "?"
+    exit 0
+fi
+
+OUT=$(curl -s --max-time 3 "https://wttr.in/${LOC}?format=%c%t")
+
+if [[ -n "$OUT" ]]; then
+    echo "$OUT" > "$CACHE"
+fi
+
+cat "$CACHE" 2>/dev/null || echo "?"
