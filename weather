@@ -17,4 +17,8 @@ if [[ -n "$OUT" ]]; then
     echo "$OUT" > "$CACHE"
 fi
 
-cat "$CACHE" 2>/dev/null || echo "?"
+TEXT=$(cat "$CACHE" 2>/dev/null || echo "?")
+TIME=$(date -r "$CACHE" '+%H:%M (%m-%d)' 2>/dev/null || echo "unknown")
+
+printf '{"text":"%s","tooltip":"last updated: %s"}\n' \
+    "$TEXT" "$TIME"

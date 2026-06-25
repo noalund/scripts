@@ -11,4 +11,8 @@ if [[ -n "$OUT" ]]; then
     awk '{printf "₿%.2f", $1}' <<< "$OUT" > "$CACHE"
 fi
 
-cat "$CACHE" 2>/dev/null || echo "?"
+TEXT=$(cat "$CACHE" 2>/dev/null || echo "?")
+TIME=$(date -r "$CACHE" '+%H:%M (%m-%d)' 2>/dev/null || echo "unknown")
+
+printf '{"text":"%s","tooltip":"last updated: %s"}\n' \
+    "$TEXT" "$TIME"
