@@ -26,6 +26,17 @@ nohup hyprpaper >/dev/null 2>&1 &
 # Apply pywal colors
 wal -i "$IMG"
 
+# Generate wal.lua file for use with hyprland
+cat > "$HOME/.config/hypr/wal.lua" <<EOF
+return {
+    background = 0xee$(jq -r '.special.background' "$HOME/.cache/wal/colors.json" | tr -d '#'),
+    foreground = 0xff$(jq -r '.special.foreground' "$HOME/.cache/wal/colors.json" | tr -d '#'),
+}
+EOF
+
+# Reload hyprland so style.lua updates color info
+hyprctl reload
+
 # Restart waybar
 pkill waybar
 nohup waybar >/dev/null 2>&1 &
