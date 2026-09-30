@@ -19,4 +19,4 @@ if ! curl -sf http://localhost:11434/api/tags >/dev/null; then
     }
 fi
 
-exec kitty -e ollama run kimi-k2.6:cloud
+exec kitty -e ollama run deepseek-v4.1-flash:cloud
