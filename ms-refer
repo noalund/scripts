@@ -30,7 +30,7 @@ case "$choice" in
         ;;
     2)
         OUT_FILE="${MS_FILE%.ms}.pdf"
-        refer -p "$BIB_FILE" "$MS_FILE" | groff -U -k -Kutf8 -ms -Tpdf > "$OUT_FILE"
+        refer -p "$BIB_FILE" "$MS_FILE" | groff -U -k -Kutf8 -e -ms -Tpdf > "$OUT_FILE"
         echo "PDF generated: $OUT_FILE"
         ;;
     *)
